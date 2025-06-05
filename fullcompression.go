@@ -1,4 +1,4 @@
-package main
+package GoDeflateCompression
 
 func FullCompression(s string) ([]byte, *Node, int, bool) {
 	var LZCompressed []byte
