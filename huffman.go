@@ -156,13 +156,20 @@ func compressTextIntoBinary(s []byte) ([]byte, *Node, int) {
 }
 
 func decompress(binaryData []byte, root *Node, totalChars int) []byte {
+	if root == nil {
+		panic("decompress: root node is nil")
+	}
+
 	var result []byte
 	current := root
-	bitCount := 0
 	charsDecoded := 0
 
 	for _, b := range binaryData {
-		for i := 7; i >= 0; i-- { // on lit bit par bit du MSB au LSB
+		for i := 7; i >= 0; i-- {
+			if current == nil {
+				panic("decompress: encountered nil node in tree traversal")
+			}
+
 			bit := (b >> i) & 1
 			if bit == 0 {
 				current = current.left
@@ -170,18 +177,21 @@ func decompress(binaryData []byte, root *Node, totalChars int) []byte {
 				current = current.right
 			}
 
+			if current == nil {
+				panic("decompress: invalid tree structure or corrupted data (nil node reached)")
+			}
+
 			if current.left == nil && current.right == nil {
-				// Feuille atteinte
 				result = append(result, current.b)
 				charsDecoded++
 				if charsDecoded == totalChars {
-					return result // Tous les caractères décodés
+					return result
 				}
-				current = root // reset à la racine
+				current = root
 			}
-			bitCount++
 		}
 	}
+
 	return result
 }
 

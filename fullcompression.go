@@ -3,6 +3,7 @@ package GoDeflateCompression
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 )
 
 func FullCompression(s string) ([]byte, []byte, int, bool) {
@@ -33,8 +34,12 @@ func FullCompression(s string) ([]byte, []byte, int, bool) {
 
 func FullDecompression(bin []byte, tree []byte, totalChars int, usedLZ bool) (final string) {
 	treeReader := bufio.NewReader(bytes.NewReader(tree))
-	deserialized_tree, _ := deserializeTree(treeReader)
 
+	deserialized_tree, _ := deserializeTree(treeReader)
+	if deserialized_tree == nil {
+		fmt.Println("tree nil")
+		return ""
+	}
 	decompressedBinary := decompress(bin, deserialized_tree, totalChars)
 
 	if usedLZ {
