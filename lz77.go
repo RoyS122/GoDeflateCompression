@@ -9,7 +9,7 @@ type LZTuples struct {
 	Offset   uint16
 	Length   uint8
 	NextChar byte
-}
+} //
 
 func lz77Compression(str string, windowSize int) (result []LZTuples) {
 	// taille de la fenêtre de recherche

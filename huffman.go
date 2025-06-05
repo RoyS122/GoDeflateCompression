@@ -1,4 +1,4 @@
-package main
+package GoDeflateCompression
 
 import (
 	"bufio"
@@ -11,7 +11,7 @@ type Node struct {
 	freq  int
 	left  *Node
 	right *Node
-}
+} //
 
 type PriorityQueue []*Node
 
