@@ -1,9 +1,14 @@
 package GoDeflateCompression
 
-func FullCompression(s string) ([]byte, *Node, int, bool) {
+import (
+	"bufio"
+	"bytes"
+)
+
+func FullCompression(s string) ([]byte, []byte, int, bool) {
 	var LZCompressed []byte
 	var useLZ77 bool
-
+	var ser_tree bytes.Buffer
 	if len(s) < 100000 {
 		LZCompressed = serializeLZTuples(lz77Compression(s, len(s)/2))
 		if len(LZCompressed) < len(s) {
@@ -18,14 +23,19 @@ func FullCompression(s string) ([]byte, *Node, int, bool) {
 
 	if useLZ77 {
 		data, tree, count := compressTextIntoBinary(LZCompressed)
-		return data, tree, count, true
+		serializeTree(tree, &ser_tree)
+		return data, ser_tree.Bytes(), count, true
 	}
 	data, tree, count := compressTextIntoBinary([]byte(s))
-	return data, tree, count, false
+	serializeTree(tree, &ser_tree)
+	return data, ser_tree.Bytes(), count, false
 }
 
-func FullDecompression(bin []byte, tree *Node, totalChars int, usedLZ bool) (final string) {
-	decompressedBinary := decompress(bin, tree, totalChars)
+func FullDecompression(bin []byte, tree []byte, totalChars int, usedLZ bool) (final string) {
+	treeReader := bufio.NewReader(bytes.NewReader(tree))
+	deserialized_tree, _ := deserializeTree(treeReader)
+
+	decompressedBinary := decompress(bin, deserialized_tree, totalChars)
 
 	if usedLZ {
 		// Décompression LZ après Huffman
