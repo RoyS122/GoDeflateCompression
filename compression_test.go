@@ -19,29 +19,3 @@ func TestCompressDecompress(t *testing.T) {
 	}
 }
 
-// func TestTreeSerializationSymmetry(t *testing.T) {
-// 	data := []byte("hello world, hello compression")
-
-// 	_, root, _ := compressTextIntoBinary(data)
-
-// 	var buf bytes.Buffer
-// 	writer := bufio.NewWriter(&buf)
-
-// 	err := serializeTree(root, writer)
-// 	if err != nil {
-// 		t.Fatalf("Erreur lors de la sérialisation : %v", err)
-// 	}
-// 	writer.Flush()
-
-// 	deserializedRoot, err := deserializeTree(bufio.NewReader(&buf))
-// 	if err != nil {
-// 		t.Fatalf("Erreur lors de la désérialisation : %v", err)
-// 	}
-
-// 	compressed, _, length := compressTextIntoBinary(data)
-// 	result := decompress(compressed, deserializedRoot, length)
-
-// 	if string(result) != string(data) {
-// 		t.Errorf("La décompression après désérialisation a échoué.\nAttendu : %s\nReçu : %s", string(data), string(result))
-// 	}
-// }
