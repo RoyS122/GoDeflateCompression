@@ -10,6 +10,7 @@ func FullCompression(s string) ([]byte, []byte, int, bool) {
 	var LZCompressed []byte
 	var useLZ77 bool
 	var ser_tree bytes.Buffer
+
 	if len(s) < 100000 {
 		LZCompressed = serializeLZTuples(lz77Compression(s, len(s)/2))
 		if len(LZCompressed) < len(s) {
@@ -24,20 +25,27 @@ func FullCompression(s string) ([]byte, []byte, int, bool) {
 
 	if useLZ77 {
 		data, tree, count := compressTextIntoBinary(LZCompressed)
-		serializeTree(tree, &ser_tree)
-		return data, ser_tree.Bytes(), count, true
+
+		writer := bufio.NewWriter(&ser_tree)
+		serializeTree(tree, writer)
+		writer.Flush()
+		return data, ser_tree.Bytes(), count, useLZ77
 	}
 	data, tree, count := compressTextIntoBinary([]byte(s))
-	serializeTree(tree, &ser_tree)
-	return data, ser_tree.Bytes(), count, false
+
+	writer := bufio.NewWriter(&ser_tree)
+	serializeTree(tree, writer)
+	writer.Flush()
+	return data, ser_tree.Bytes(), count, useLZ77
+
 }
 
 func FullDecompression(bin []byte, tree []byte, totalChars int, usedLZ bool) (final string) {
 	treeReader := bufio.NewReader(bytes.NewReader(tree))
 
-	deserialized_tree, _ := deserializeTree(treeReader)
-	if deserialized_tree == nil {
-		fmt.Println("tree nil")
+	deserialized_tree, err := deserializeTree(treeReader)
+	if err != nil {
+		fmt.Printf("Erreur désérialisation arbre : %v\n", err)
 		return ""
 	}
 	decompressedBinary := decompress(bin, deserialized_tree, totalChars)

@@ -3,7 +3,6 @@ package GoDeflateCompression
 import (
 	"bufio"
 	"fmt"
-	"io"
 )
 
 type Node struct {
@@ -195,21 +194,20 @@ func decompress(binaryData []byte, root *Node, totalChars int) []byte {
 	return result
 }
 
-func serializeTree(node *Node, w io.Writer) error {
+func serializeTree(node *Node, w *bufio.Writer) error {
 	if node == nil {
 		return nil
 	}
 	if node.left == nil && node.right == nil {
-		// feuille : écrire 1 + rune
-		if _, err := w.Write([]byte{1}); err != nil {
+		if err := w.WriteByte(1); err != nil {
 			return err
 		}
-		// écrire le rune (ex: UTF-8)
-		_, err := w.Write([]byte(string(node.b)))
-		return err
+		if err := w.WriteByte(node.b); err != nil {
+			return err
+		}
+		return nil
 	} else {
-		// interne : écrire 0
-		if _, err := w.Write([]byte{0}); err != nil {
+		if err := w.WriteByte(0); err != nil {
 			return err
 		}
 		if err := serializeTree(node.left, w); err != nil {
